@@ -1,0 +1,7 @@
+have a exe that uses windows cmd to run keydetection
+
+once detected input key
+    run run_script.py
+
+once detected quit key
+    exit program

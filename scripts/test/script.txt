@@ -1,0 +1,8 @@
+None
+None
+None
+0
+click spotify.png
+click 100 200
+# moveto spotify.png
+# write 'abcd efgf'
