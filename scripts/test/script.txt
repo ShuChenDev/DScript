@@ -3,5 +3,5 @@ end: p
 repeat: Inf
 delay: 0
 
-write 1
-press backspace
+moveto spotify.png
+click

@@ -2,6 +2,7 @@ import time
 import pyautogui
 import keyboard
 import os
+
 safety_words = {'delay', 'press', 'write', 'click', 'moveto', '#', '\n', 'start:', 'end:', 'repeat:', 'delay:'}
 
 def click_image(path):
@@ -12,29 +13,40 @@ def click_image(path):
         except:
             pass
 
+def moveto_image(path):
+    while True:
+        try:
+            pyautogui.moveTo(pyautogui.locateOnScreen(path, confidence=0.9))
+            break
+        except:
+            pass
+
 def key_detection(start_key, end_key, mode): 
     '''
     Return True if start key is pressed, False if end key is pressed
     '''
-
     try:
+        if 'None' in end_key:
+            print('Must have a end key')
+            raise SyntaxError
+        if start_key == end_key:
+            print('Must have different start and end key')
+            raise SyntaxError
+        
         if 'None' in start_key:
-            if 'Inf' not in mode:
-                return True
-            else:
-                print ('Must enter a start key if repeat is infinate')
-                raise SyntaxError
+            return True
+
         print('Waiting for key to be pressed')
         while True:
-            if keyboard.is_pressed(end_key) == True:
-                print(end_key + ' Pressed')
-                return False
             if keyboard.is_pressed(start_key) == True:
                 print(start_key + ' Pressed')
                 return True
+            if keyboard.is_pressed(end_key) == True:
+                print(end_key + ' Pressed')
+                return False
     except:
         print('Error when getting key inputs. \nEnd program')
-        return False
+        quit()
     
 def get_script_info(script_name):
     '''
@@ -105,31 +117,34 @@ def run_script(script_name, interval):
             time.sleep(int(arg))
             continue
 
+        ############ Click ############
         # Click a Place on screen, 1 arg will click on image, 2 arg will click on coordinate
         elif command == 'click': 
-            arg = arg.split()                
             #Click Image
-            if len(arg) == 0:
+            if arg == '':
                 print('click')
                 pyautogui.click()
+                continue
             if len(arg) == 1:
                 print('click image: ' + path + arg[0])
                 click_image(path + arg[0])
                 print('image clicked: ' + path + arg[0])
             #Click Coordinate
             elif len(arg) == 2:
-                pyautogui.click(arg[0],arg[1])
+                pyautogui.click(int(arg[0]), int(arg[1]))
                 print('click coordinate x: ' + arg[0] + ' y: ' + arg[1])
+
+        ############ Move ############        
         # Move to a Place on screen, 1 arg will move to an image, 2 arg will move to coordinate
         elif command == 'moveto': 
             arg = arg.split()                
             #Move to Image
             if len(arg) == 1:
                 print('Move to image: ' + path + arg[0])
-                pyautogui.moveTo(path + arg[0])
+                moveto_image(path + arg[0])
             #Move to Coordinate
             elif len(arg) == 2:
-                pyautogui.moveTo(arg[0],arg[1])            
+                pyautogui.moveTo(int(arg[0]), int(arg[1]))            
                 print('Move to coordinate x: ' + arg[0] + ' y: ' + arg[1])
         
         
@@ -153,24 +168,24 @@ def run_script(script_name, interval):
     print('*' * 16 + '\n')
 
 script_name = 'test'
+#pyautogui.FAILSAFE = False
+
+
 start, end, repeat, delay  = get_script_info(script_name)
-pyautogui.FAILSAFE = False
-
-
 repeat_count = 0
 while ('None' in repeat or 'Inf' in repeat) or repeat.isdigit() and repeat_count < int(repeat):
     
     if not key_detection(start, end, repeat):
-        print('1 End program')
+        print('End key detected. End program')
         quit()            
+    
     os.system('cls')
     run_script(script_name, delay)
     repeat_count += 1
     
     if 'None' in repeat:
-        print('2 End program')
+        print('Repeat end. End program')
         quit()    
 
-
-print('3 End program')
+print('Repeat end. End program')
 quit()
