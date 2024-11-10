@@ -3,7 +3,8 @@ import pyautogui
 import keyboard
 import os
 
-safety_words = {'delay', 'press', 'write', 'click', 'moveto', '#', '\n', 'start:', 'end:', 'repeat:', 'delay:'}
+safety_words = {'delay', 'press', 'write', 'click', 'clickall', 'moveto', '#', '\n', 'start:', 'end:', 'repeat:', 'delay:'}
+#pyautogui.FAILSAFE = False
 
 def click_image(path):
     while True:
@@ -13,6 +14,14 @@ def click_image(path):
         except:
             pass
 
+def click_all_image(path):
+        try:
+            targetLocation = pyautogui.locateAllOnScreen(path, confidence=0.9)
+            for i in targetLocation:
+                pyautogui.click(i)            
+        except:
+            pass
+        
 def moveto_image(path):
     while True:
         try:
@@ -26,10 +35,10 @@ def key_detection(start_key, end_key, mode):
     Return True if start key is pressed, False if end key is pressed
     '''
     try:
-        if 'None' in end_key:
+        if 'None' in end_key and 'None' not in mode:
             print('Must have a end key')
             raise SyntaxError
-        if start_key == end_key:
+        if start_key == end_key and 'None' not in start_key:
             print('Must have different start and end key')
             raise SyntaxError
         
@@ -110,7 +119,7 @@ def run_script(script_name, interval):
         if command not in safety_words:
             raise SyntaxError('Line ' + str(i + 1) + ' contains unknown command: ' + command + '\nEnd program')
         
-        ############ Execute script ############
+        ############ Delay ############
         # delay arg secondsss before executing next command
         if command == 'delay':
             print('Pause for ' + str(arg) + ' seconds')
@@ -120,44 +129,48 @@ def run_script(script_name, interval):
         ############ Click ############
         # Click a Place on screen, 1 arg will click on image, 2 arg will click on coordinate
         elif command == 'click': 
-            #Click Image
             if arg == '':
                 print('click')
                 pyautogui.click()
                 continue
+            arg = arg.split()                
             if len(arg) == 1:
                 print('click image: ' + path + arg[0])
                 click_image(path + arg[0])
                 print('image clicked: ' + path + arg[0])
-            #Click Coordinate
             elif len(arg) == 2:
                 pyautogui.click(int(arg[0]), int(arg[1]))
                 print('click coordinate x: ' + arg[0] + ' y: ' + arg[1])
+        
+        ############ Click all ############        
+        elif command == 'clickall':
+            print('click all image: ' + path + arg)
+            click_all_image(path + arg)
 
-        ############ Move ############        
+        ############ Move ############    
         # Move to a Place on screen, 1 arg will move to an image, 2 arg will move to coordinate
         elif command == 'moveto': 
             arg = arg.split()                
-            #Move to Image
             if len(arg) == 1:
                 print('Move to image: ' + path + arg[0])
                 moveto_image(path + arg[0])
-            #Move to Coordinate
             elif len(arg) == 2:
                 pyautogui.moveTo(int(arg[0]), int(arg[1]))            
                 print('Move to coordinate x: ' + arg[0] + ' y: ' + arg[1])
-        
-        
+
+        ############ Write ############        
         # keyboard input arg
         elif command == 'write':
             arg = arg.replace('\n', '')
             print('write ' + arg)
             pyautogui.write(arg)
-        
+
+        ############ Press ############        
         # press key in keyboard --- for more information ref to https://pyautogui.readthedocs.io/en/latest/keyboard.html#keyboard-keys 
         elif command == 'press':
             print('press ' + arg)
             pyautogui.press(arg)
+
 
         if l[0] == '\n' or command == 'start:' or command == 'end:' or command == 'repeat:' or command == 'delay:' or command == '#':
             continue
@@ -167,9 +180,15 @@ def run_script(script_name, interval):
     
     print('*' * 16 + '\n')
 
-script_name = 'test'
-#pyautogui.FAILSAFE = False
 
+
+for item in os.listdir('/'):
+    item_path = os.path.join('/scripts', item)
+    if os.path.isdir(item_path):
+        print(item)
+        
+        
+script_name = 'open spotify'
 
 start, end, repeat, delay  = get_script_info(script_name)
 repeat_count = 0

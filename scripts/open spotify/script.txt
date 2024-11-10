@@ -1,0 +1,6 @@
+start: None
+end: None
+repeat: None
+delay: 0
+
+click spotify.png
