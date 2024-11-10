@@ -1,7 +1,0 @@
-start: o
-end: p
-repeat: Inf
-delay: 0
-
-moveto spotify.png
-click
